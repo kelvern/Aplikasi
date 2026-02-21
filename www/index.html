@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QR Master dengan Google Gemini AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --dark: #1e1e2f;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --border: #e9ecef;
+            --bg: #f5f7fa;
+            --text: #212529;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.03);
+            --ai-bg: linear-gradient(135deg, #4285f4, #34a853, #fbbc04, #ea4335);
+        }
+
+        .dark-mode {
+            --primary: #6d8cff;
+            --primary-light: #8aabff;
+            --dark: #f8f9fa;
+            --light: #2a2a3a;
+            --gray: #b0b0c0;
+            --border: #3a3a4a;
+            --bg: #1a1a28;
+            --text: #f0f0f0;
+            --card-bg: #2a2a3a;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            transition: all 0.3s;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            margin: 0;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 400px;
+            height: 750px;
+            background-color: var(--card-bg);
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            padding: 20px 24px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4285f4, #34a853, #fbbc04, #ea4335);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gemini-badge {
+            font-size: 12px;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+        .theme-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 30px;
+            background-color: var(--light);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 22px;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px 8px;
+            scrollbar-width: thin;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 16px 16px;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            opacity: 0.6;
+            padding: 8px 16px;
+            border-radius: 30px;
+        }
+
+        .nav-item.active {
+            opacity: 1;
+            color: var(--primary);
+            background-color: var(--light);
+        }
+
+        .card {
+            background-color: var(--light);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .scan-area {
+            background-color: var(--dark);
+            border-radius: 28px;
+            height: 280px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 2px solid var(--border);
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-overlay {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 2px solid var(--primary);
+            border-radius: 24px;
+            box-shadow: 0 0 0 999px rgba(0,0,0,0.6);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: scan 2s linear infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes scan {
+            0% { transform: translate(-50%, -100px); }
+            50% { transform: translate(-50%, 100px); }
+            100% { transform: translate(-50%, -100px); }
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 18px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text);
+            font-size: 15px;
+        }
+
+        .result-explanation {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 16px 0;
+            border: 2px solid #4285f4;
+            position: relative;
+        }
+
+        .gemini-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .gemini-icon {
+            background: white;
+            color: #1a1a2e;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .gemini-thinking {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .gemini-thinking::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 3px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden { display: none !important; }
+
+        .api-key-input {
+            background: rgba(66, 133, 244, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 2px dashed #4285f4;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideUp 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>QR Master <span class="gemini-badge">GEMINI AI</span></h1>
+            <div class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</div>
+        </div>
+
+        <div class="main-content" id="mainContent">
+            <!-- API KEY INPUT SCREEN - LANGSUNG TERISI OTOMATIS -->
+            <div id="apiKeyScreen">
+                <div class="card">
+                    <h2 style="margin-bottom: 20px;">🔐 Setup Google Gemini AI</h2>
+                    
+                    <div class="api-key-input">
+                        <p style="margin-bottom: 15px; color: var(--gray);">API Key Anda sudah terisi otomatis:</p>
+                        
+                        <div class="input-group" style="margin-bottom: 15px;">
+                            <label>API Key Gemini</label>
+                            <input type="text" class="input-field" id="geminiApiKey" value="AIzaSyC7iG2hqihrHtx0IA8ocuIYIHbKok-jMS8" readonly style="background-color: #f0f0f0;">
+                            <p style="font-size: 12px; margin-top: 8px; color: var(--gray);">
+                                ✅ API Key sudah terkonfigurasi! Klik tombol di bawah untuk lanjut.
+                            </p>
+                        </div>
+                        
+                        <button class="btn" onclick="saveApiKey()">
+                            <span>🔑</span> Aktifkan & Lanjutkan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Home Screen -->
+            <div id="homeScreen" class="hidden">
+                <div class="card">
+                    <h2>📸 Scan QR Code</h2>
+                    <p style="margin-bottom: 20px;">Arahkan kamera ke QR code untuk memindai dan analisis AI</p>
+                    <button class="btn" onclick="navigateTo('scan')">
+                        <span>📷</span> Mulai Scan dengan AI
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2>✨ Buat QR Code</h2>
+                    <p style="margin-bottom: 20px;">Generate QR code dari teks, link, atau gambar</p>
+                    <button class="btn btn-outline" onclick="navigateTo('generate')">
+                        <span>🔮</span> Buat QR Baru
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2>📋 Riwayat Terakhir</h2>
+                    <div id="recentHistory"></div>
+                </div>
+            </div>
+
+            <!-- Scan Screen -->
+            <div id="scanScreen" class="hidden">
+                <div class="scan-area">
+                    <video id="video" playsinline autoplay></video>
+                    <div class="scan-overlay"></div>
+                    <div class="scan-line"></div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn" onclick="scanFromGallery()">
+                        <span>🖼️</span> Scan dari Galeri
+                    </button>
+                    <button class="btn btn-outline" onclick="toggleCamera()">
+                        <span>🔄</span> Ganti Kamera
+                    </button>
+                </div>
+            </div>
+
+            <!-- Generate Screen -->
+            <div id="generateScreen" class="hidden">
+                <div class="card">
+                    <div class="input-group">
+                        <label>Pilih Tipe Data</label>
+                        <select class="input-field" id="qrType" onchange="handleQRTypeChange()">
+                            <option value="text">Teks / Pesan</option>
+                            <option value="url">Link / URL</option>
+                            <option value="image">Gambar</option>
+                        </select>
+                    </div>
+
+                    <div id="textInputGroup" class="input-group">
+                        <label>Masukkan Teks</label>
+                        <textarea class="input-field" id="qrText" rows="3" placeholder="Tulis teks atau pesan..."></textarea>
+                    </div>
+
+                    <div id="urlInputGroup" class="input-group hidden">
+                        <label>Masukkan URL</label>
+                        <input type="url" class="input-field" id="qrUrl" placeholder="https://example.com">
+                    </div>
+
+                    <div id="imageInputGroup" class="input-group hidden">
+                        <label>Pilih Gambar</label>
+                        <input type="file" class="input-field" id="qrImage" accept="image/*">
+                    </div>
+
+                    <div class="qr-preview" id="qrPreview">
+                        <div id="qrCodeImg">QR Code akan muncul disini</div>
+                    </div>
+
+                    <button class="btn" onclick="generateQR()">
+                        <span>✨</span> Generate QR Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- History Screen -->
+            <div id="historyScreen" class="hidden">
+                <div class="card">
+                    <h2 style="margin-bottom: 20px;">📋 Riwayat Scan dengan AI</h2>
+                    <div id="historyList"></div>
+                </div>
+            </div>
+
+            <!-- Result Screen dengan GEMINI AI -->
+            <div id="resultScreen" class="hidden">
+                <div class="card">
+                    <div class="result-type" id="resultType">URL</div>
+                    
+                    <h3>Isi QR Code:</h3>
+                    <div class="result-content" id="resultContent"></div>
+                    
+                    <div id="linkPreview" class="hidden">
+                        <h3>Preview:</h3>
+                        <img id="previewImage" style="max-width: 100%; border-radius: 16px;">
+                    </div>
+
+                    <!-- GEMINI AI EXPLANATION -->
+                    <div class="result-explanation" id="resultExplanation">
+                        <div class="gemini-header">
+                            <div class="gemini-icon">G</div>
+                            <span style="font-weight: bold;">Google Gemini AI</span>
+                            <span style="font-size: 11px; margin-left: auto;" id="aiStatus">Aktif</span>
+                        </div>
+                        <div id="explanationContent" style="line-height: 1.6;">
+                            Menunggu analisis AI...
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn" onclick="copyResult()">📋 Copy</button>
+                        <button class="btn" onclick="shareResult()">📤 Share</button>
+                    </div>
+
+                    <div id="urlButtons" class="btn-group hidden">
+                        <button class="btn btn-outline" onclick="openLink()">🔗 Buka Link</button>
+                        <button class="btn btn-outline" onclick="checkWithAI()">🛡️ Cek Keamanan dengan AI</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="navigateTo('home')" id="navHome">🏠<span>Home</span></div>
+            <div class="nav-item" onclick="navigateTo('scan')" id="navScan">📷<span>Scan</span></div>
+            <div class="nav-item" onclick="navigateTo('generate')" id="navGenerate">✨<span>Buat</span></div>
+            <div class="nav-item" onclick="navigateTo('history')" id="navHistory">📋<span>History</span></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <script>
+        // ==================== STATE MANAGEMENT ====================
+        let currentScreen = 'apiKey';
+        let scannedResult = null;
+        let history = JSON.parse(localStorage.getItem('qrHistory')) || [];
+        let cameraStream = null;
+        let scanInterval = null;
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        
+        // API KEY ANDA SUDAH DIISI LANGSUNG DI SINI
+        let GEMINI_API_KEY = 'AIzaSyC7iG2hqihrHtx0IA8ocuIYIHbKok-jMS8';
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            }
+            
+            // Cek apakah sudah punya API Key
+            if (GEMINI_API_KEY) {
+                // Tampilkan screen apiKey dengan API Key yang sudah terisi
+                showScreen('apiKey');
+            } else {
+                showScreen('apiKey');
+            }
+            
+            updateRecentHistory();
+        });
+
+        // ==================== API KEY FUNCTIONS ====================
+        function saveApiKey() {
+            // API Key sudah otomatis terisi, langsung simpan ke localStorage
+            localStorage.setItem('geminiApiKey', GEMINI_API_KEY);
+            showToast('✅ API Key tersimpan! Mengaktifkan Gemini AI...');
+            showScreen('home');
+        }
+
+        // ==================== GEMINI AI FUNCTION ====================
+        async function analyzeWithGeminiAI(text, type) {
+            const explanationDiv = document.getElementById('explanationContent');
+            const aiStatus = document.getElementById('aiStatus');
+            
+            // Tampilkan loading
+            explanationDiv.innerHTML = `
+                <div class="gemini-thinking">
+                    🧠 Google Gemini AI sedang menganalisis QR Code...
+                </div>
+            `;
+            aiStatus.textContent = '⚡ Menganalisis...';
+            
+            try {
+                const prompt = `Analisis QR code ini dengan DETAIL dan bahasa Indonesia yang mudah dipahami:
+
+Jenis QR: ${type}
+Isi QR: "${text}"
+
+TUGAS:
+1. Jelaskan dengan BAHASA SEDERHANA apa isi QR code ini? (2-3 kalimat)
+2. Jika berupa LINK/URL: 
+   - Apakah link ini aman? Beri analisis keamanan
+   - Dari domain mana? (contoh: google.com, youtube.com, dll)
+   - Saran: apakah perlu dibuka atau tidak?
+3. Jika berupa TEKS:
+   - Deteksi bahasa yang digunakan
+   - Apa kira-kira tujuan teks ini? (informasi, promosi, pesan pribadi, dll)
+4. Jika berupa GAMBAR:
+   - Analisis kemungkinan isi gambar dari nama filenya
+5. Berikan 3 TAGS yang relevan
+6. Berikan REKOMENDASI: apa yang sebaiknya dilakukan user dengan QR ini?
+
+Format jawaban:
+🔍 [Penjelasan singkat]
+
+📋 DETAIL ANALISIS:
+• [poin-poin analisis]
+
+🏷️ TAGS: [tag1, tag2, tag3]
+
+💡 REKOMENDASI: [saran untuk user]`;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 800,
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    explanationDiv.innerHTML = aiResponse.replace(/\n/g, '<br>');
+                    aiStatus.textContent = '✅ Selesai';
+                    
+                    // Simpan analisis ke history
+                    if (scannedResult) {
+                        scannedResult.aiAnalysis = aiResponse;
+                    }
+                } else {
+                    throw new Error('Invalid response from Gemini');
+                }
+
+            } catch (error) {
+                console.error('Gemini AI Error:', error);
+                explanationDiv.innerHTML = `
+                    <div style="color: #ff6b6b;">
+                        ❌ Gagal memanggil Google Gemini AI. 
+                        <br><br>
+                        Kemungkinan penyebab:
+                        <br>• API Key salah atau expired
+                        <br>• Kuota API habis
+                        <br>• Tidak ada koneksi internet
+                        <br><br>
+                        <button onclick="analyzeWithGeminiAI('${text}', '${type}')" class="btn" style="padding: 10px;">
+                            🔄 Coba Lagi
+                        </button>
+                    </div>
+                `;
+                aiStatus.textContent = '❌ Error';
+            }
+        }
+
+        // ==================== QR SCANNING ====================
+        async function startCamera() {
+            try {
+                stopCamera();
+                
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+                
+                cameraStream = stream;
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                video.play();
+                startScanning();
+            } catch (err) {
+                showToast('Tidak dapat mengakses kamera');
+            }
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+            if (scanInterval) {
+                clearInterval(scanInterval);
+            }
+        }
+
+        function startScanning() {
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            
+            scanInterval = setInterval(() => {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0);
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, canvas.width, canvas.height);
+                    
+                    if (code) {
+                        handleScanResult(code.data);
+                    }
+                }
+            }, 500);
+        }
+
+        function handleScanResult(data) {
+            // Stop scanning
+            if (scanInterval) {
+                clearInterval(scanInterval);
+                scanInterval = null;
+            }
+            
+            // Vibrate
+            if (navigator.vibrate) navigator.vibrate(200);
+            
+            // Analyze type
+            const type = analyzeQRType(data);
+            
+            scannedResult = {
+                data: data,
+                type: type,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Add to history
+            addToHistory(scannedResult);
+            
+            // Show result
+            showResult(scannedResult);
+            
+            // Panggil GEMINI AI untuk analisis
+            analyzeWithGeminiAI(data, type);
+        }
+
+        function analyzeQRType(data) {
+            if (data.startsWith('http://') || data.startsWith('https://')) {
+                return 'URL';
+            } else if (data.startsWith('data:image')) {
+                return 'Gambar';
+            } else {
+                return 'Teks';
+            }
+        }
+
+        // ==================== UI FUNCTIONS ====================
+        function showScreen(screen) {
+            document.getElementById('apiKeyScreen')?.classList.add('hidden');
+            document.getElementById('homeScreen')?.classList.add('hidden');
+            document.getElementById('scanScreen')?.classList.add('hidden');
+            document.getElementById('generateScreen')?.classList.add('hidden');
+            document.getElementById('historyScreen')?.classList.add('hidden');
+            document.getElementById('resultScreen')?.classList.add('hidden');
+            
+            document.getElementById(`${screen}Screen`)?.classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if (screen !== 'apiKey') {
+                document.getElementById(`nav${screen.charAt(0).toUpperCase() + screen.slice(1)}`)?.classList.add('active');
+            }
+            
+            currentScreen = screen;
+            
+            if (screen === 'scan') startCamera();
+            else stopCamera();
+            if (screen === 'history') renderHistoryList();
+        }
+
+        function navigateTo(screen) {
+            if (!GEMINI_API_KEY && screen !== 'apiKey') {
+                showToast('⚠️ Masukkan API Key Gemini dulu');
+                showScreen('apiKey');
+                return;
+            }
+            showScreen(screen);
+        }
+
+        function showResult(result) {
+            showScreen('result');
+            document.getElementById('resultType').textContent = result.type;
+            document.getElementById('resultContent').textContent = result.data;
+            
+            if (result.type === 'URL') {
+                document.getElementById('urlButtons').classList.remove('hidden');
+                document.getElementById('linkPreview').classList.remove('hidden');
+                document.getElementById('previewImage').src = 'https://via.placeholder.com/300x200?text=Link+Preview';
+            } else {
+                document.getElementById('urlButtons').classList.add('hidden');
+                document.getElementById('linkPreview').classList.add('hidden');
+            }
+        }
+
+        // ==================== HISTORY FUNCTIONS ====================
+        function addToHistory(item) {
+            history.unshift(item);
+            if (history.length > 20) history.pop();
+            localStorage.setItem('qrHistory', JSON.stringify(history));
+            updateRecentHistory();
+        }
+
+        function updateRecentHistory() {
+            const recent = document.getElementById('recentHistory');
+            if (history.length > 0) {
+                recent.innerHTML = history.slice(0, 3).map(item => `
+                    <div class="history-item" onclick="viewHistoryItem('${item.timestamp}')">
+                        <div class="history-type">${item.type}</div>
+                        <div class="history-text">${item.data.substring(0, 30)}...</div>
+                    </div>
+                `).join('');
+            } else {
+                recent.innerHTML = '<p style="color: var(--gray);">Belum ada riwayat</p>';
+            }
+        }
+
+        function renderHistoryList() {
+            const list = document.getElementById('historyList');
+            if (history.length > 0) {
+                list.innerHTML = history.map(item => `
+                    <div class="history-item" onclick="viewHistoryItem('${item.timestamp}')">
+                        <div>
+                            <div class="history-type">${item.type}</div>
+                            <div class="history-text">${item.data.substring(0, 40)}...</div>
+                            <div style="font-size: 11px;">${new Date(item.timestamp).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = '<p style="text-align: center;">Belum ada riwayat</p>';
+            }
+        }
+
+        function viewHistoryItem(timestamp) {
+            const item = history.find(h => h.timestamp === timestamp);
+            if (item) {
+                showResult(item);
+                if (item.aiAnalysis) {
+                    document.getElementById('explanationContent').innerHTML = item.aiAnalysis.replace(/\n/g, '<br>');
+                } else {
+                    analyzeWithGeminiAI(item.data, item.type);
+                }
+            }
+        }
+
+        // ==================== GALLERY SCAN ====================
+        function scanFromGallery() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const code = jsQR(imageData.data, canvas.width, canvas.height);
+                        
+                        if (code) {
+                            handleScanResult(code.data);
+                        } else {
+                            showToast('Tidak ditemukan QR Code');
+                        }
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+            
+            input.click();
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function toggleTheme() {
+            darkMode = !darkMode;
+            document.body.classList.toggle('dark-mode');
+            themeToggle.textContent = darkMode ? '☀️' : '🌙';
+            localStorage.setItem('darkMode', darkMode);
+        }
+
+        function toggleCamera() {
+            startCamera(); // Simple toggle
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2000);
+        }
+
+        function copyResult() {
+            if (scannedResult) {
+                navigator.clipboard.writeText(scannedResult.data);
+                showToast('✅ Disalin!');
+            }
+        }
+
+        function shareResult() {
+            if (scannedResult && navigator.share) {
+                navigator.share({
+                    title: 'QR Code Result',
+                    text: scannedResult.data
+                });
+            } else {
+                copyResult();
+            }
+        }
+
+        function openLink() {
+            if (scannedResult && scannedResult.type === 'URL') {
+                window.open(scannedResult.data, '_blank');
+            }
+        }
+
+        async function checkWithAI() {
+            if (scannedResult && scannedResult.type === 'URL') {
+                await analyzeWithGeminiAI(scannedResult.data, 'URL');
+            }
+        }
+
+        function handleQRTypeChange() {
+            const type = document.getElementById('qrType').value;
+            document.getElementById('textInputGroup').classList.add('hidden');
+            document.getElementById('urlInputGroup').classList.add('hidden');
+            document.getElementById('imageInputGroup').classList.add('hidden');
+            
+            if (type === 'text') document.getElementById('textInputGroup').classList.remove('hidden');
+            if (type === 'url') document.getElementById('urlInputGroup').classList.remove('hidden');
+            if (type === 'image') document.getElementById('imageInputGroup').classList.remove('hidden');
+        }
+
+        function generateQR() {
+            const type = document.getElementById('qrType').value;
+            let data = '';
+            
+            if (type === 'text') data = document.getElementById('qrText').value;
+            if (type === 'url') data = document.getElementById('qrUrl').value;
+            if (type === 'image') {
+                const file = document.getElementById('qrImage').files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => renderQR(e.target.result);
+                    reader.readAsDataURL(file);
+                    return;
+                }
+            }
+            
+            if (data) renderQR(data);
+            else showToast('Isi data terlebih dahulu');
+        }
+
+        function renderQR(data) {
+            QRCode.toDataURL(data, { width: 200 }, (err, url) => {
+                if (err) {
+                    showToast('Gagal generate QR');
+                    return;
+                }
+                document.getElementById('qrCodeImg').innerHTML = `<img src="${url}" style="max-width:100%">`;
+            });
+        }
+    </script>
+</body>
+</html>
