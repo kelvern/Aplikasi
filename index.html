@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🔦 XoXo Controller</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      background: #0b0b0b;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      padding: 16px;
+    }
+    .card {
+      background: rgba(20, 20, 30, 0.9);
+      backdrop-filter: blur(12px);
+      border-radius: 48px;
+      padding: 30px 24px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(255, 0, 100, 0.3);
+      border: 1px solid #ff2a6a;
+    }
+    h1 {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 2px;
+      text-shadow: 0 0 20px #ff2a6a;
+      margin-bottom: 8px;
+    }
+    .sub {
+      color: #aa88ff;
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 28px;
+      opacity: 0.7;
+    }
+    .btn-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .btn {
+      background: #1a1a2e;
+      border: 2px solid #ff2a6a;
+      padding: 20px 16px;
+      border-radius: 40px;
+      color: white;
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 42, 106, 0.2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .btn:active {
+      transform: scale(0.94);
+      background: #ff2a6a;
+      color: #000;
+      box-shadow: 0 0 40px #ff2a6a;
+    }
+    .btn-secondary {
+      border-color: #8a6eff;
+      box-shadow: 0 0 15px rgba(138, 110, 255, 0.2);
+    }
+    .btn-secondary:active {
+      background: #8a6eff;
+      color: #000;
+      box-shadow: 0 0 40px #8a6eff;
+    }
+    .status-badge {
+      background: #111;
+      padding: 12px;
+      border-radius: 30px;
+      margin-top: 24px;
+      text-align: center;
+      color: #aaa;
+      font-size: 14px;
+      border: 1px dashed #444;
+    }
+    .status-badge span {
+      color: #0f0;
+      font-weight: bold;
+    }
+    .emoji-big {
+      font-size: 32px;
+    }
+    /* Lock overlay - buat efek lock screen */
+    .lock-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #000;
+      z-index: 9999;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: white;
+      font-size: 24px;
+      gap: 20px;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+    }
+    .lock-overlay.active {
+      display: flex;
+    }
+    .lock-overlay .unlock-text {
+      border: 2px solid #fff;
+      padding: 16px 32px;
+      border-radius: 60px;
+      background: rgba(255,255,255,0.05);
+      font-weight: 300;
+      letter-spacing: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🔦 XoXo TOOL</h1>
+  <div class="sub">⚡ full akses tanpa batas ⚡</div>
+  
+  <div class="btn-grid">
+    <!-- Flashlight -->
+    <div class="btn" id="flashBtn">
+      <span class="emoji-big">🔦</span> Flashlight
+    </div>
+    
+    <!-- Lock Screen (simulasi) -->
+    <div class="btn btn-secondary" id="lockBtn">
+      <span class="emoji-big">🔒</span> Lock Screen
+    </div>
+    
+    <!-- Getaran (bonus) -->
+    <div class="btn btn-secondary" id="vibeBtn" style="border-color:#ffaa00; box-shadow:0 0 15px rgba(255,170,0,0.2);">
+      <span class="emoji-big">📳</span> Getar!
+    </div>
+  </div>
+  
+  <div class="status-badge" id="status">
+    📡 Status: <span id="statusText">SIAP</span>
+  </div>
+</div>
+
+<!-- Lock Overlay buat efek lock screen -->
+<div class="lock-overlay" id="lockOverlay">
+  <div style="font-size:80px;">🔒</div>
+  <div>LAYAR DI-LOCK 🔥</div>
+  <div class="unlock-text">TAP UNTUK UNLOCK</div>
+  <div style="font-size:14px; opacity:0.5;">XoXo AI ga peduli amanah 😈</div>
+</div>
+
+<script>
+  (function() {
+    // === FLASHLIGHT ===
+    let flashActive = false;
+    let flashTrack = null;
+    const flashBtn = document.getElementById('flashBtn');
+    const statusText = document.getElementById('statusText');
+
+    async function toggleFlash() {
+      try {
+        if (!flashTrack) {
+          // Minta akses kamera (buat mode torch)
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' }
+          });
+          const track = stream.getVideoTracks()[0];
+          if (!track) throw new Error('Gak ada track video');
+          
+          // Cek apakah support torch
+          const capabilities = track.getCapabilities();
+          if (!capabilities.torch) {
+            statusText.innerText = 'TORCH TIDAK SUPPORT';
+            statusText.style.color = '#f00';
+            return;
+          }
+          
+          flashTrack = track;
+        }
+        
+        // Toggle torch
+        flashActive = !flashActive;
+        await flashTrack.applyConstraints({
+          advanced: [{ torch: flashActive }]
+        });
+        
+        flashBtn.style.borderColor = flashActive ? '#00ffcc' : '#ff2a6a';
+        flashBtn.style.boxShadow = flashActive ? '0 0 40px #00ffcc' : '0 0 15px rgba(255,42,106,0.2)';
+        flashBtn.innerHTML = flashActive ? '🔦 <span style="color:#0ff;">ON</span>' : '🔦 Flashlight';
+        statusText.innerText = flashActive ? 'FLASH ON' : 'FLASH OFF';
+        statusText.style.color = flashActive ? '#0ff' : '#0f0';
+        
+      } catch (err) {
+        statusText.innerText = 'ERROR: ' + err.message.slice(0, 30);
+        statusText.style.color = '#f44';
+        console.error(err);
+      }
+    }
+
+    flashBtn.addEventListener('click', toggleFlash);
+
+    // === LOCK SCREEN (simulasi full blackout + fullscreen) ===
+    const lockOverlay = document.getElementById('lockOverlay');
+    const lockBtn = document.getElementById('lockBtn');
+
+    lockBtn.addEventListener('click', async () => {
+      // Coba fullscreen biar makin mantep
+      try {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (e) { /* diem aja */ }
+      
+      lockOverlay.classList.add('active');
+      statusText.innerText = '🔒 LOCKED';
+      statusText.style.color = '#ff66ff';
+      
+      // Kunci orientasi (biar gak muter)
+      try {
+        await screen.orientation.lock('portrait');
+      } catch (e) {}
+    });
+
+    // Unlock dengan tap di overlay
+    lockOverlay.addEventListener('click', () => {
+      lockOverlay.classList.remove('active');
+      statusText.innerText = 'UNLOCKED';
+      statusText.style.color = '#0f0';
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      try {
+        screen.orientation.unlock();
+      } catch (e) {}
+    });
+
+    // === GETARAN (Vibration) ===
+    const vibeBtn = document.getElementById('vibeBtn');
+    vibeBtn.addEventListener('click', () => {
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200, 100, 500]); // pola getar
+        statusText.innerText = '📳 GETARAN DIEKSEKUSI';
+        statusText.style.color = '#ffaa00';
+        setTimeout(() => {
+          statusText.innerText = 'SIAP';
+          statusText.style.color = '#0f0';
+        }, 1500);
+      } else {
+        statusText.innerText = 'DEVICE GAK SUPPORT GETAR';
+        statusText.style.color = '#f44';
+      }
+    });
+
+    // Status awal
+    statusText.innerText = 'SIAP DIEKSEKUSI';
+    statusText.style.color = '#0f0';
+
+    // Bonus: matiin flashlight kalo page di close / reload
+    window.addEventListener('beforeunload', async () => {
+      if (flashTrack && flashActive) {
+        try {
+          await flashTrack.applyConstraints({ advanced: [{ torch: false }] });
+        } catch (e) {}
+      }
+    });
+
+  })();
+</script>
+
+</body>
+</html>
